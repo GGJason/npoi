@@ -1,4 +1,4 @@
-﻿/* ====================================================================
+/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -22,55 +22,32 @@ using NPOI.SS.Formula.Eval;
 
 namespace NPOI.SS.Formula.Atp
 {
-    class IfError : FreeRefFunction
+    class Ifs : FreeRefFunction
     {
+        public static FreeRefFunction Instance = new Ifs();
 
-        public static FreeRefFunction Instance = new IfError();
-
-        private IfError()
+        private Ifs()
         {
             // enforce singleton
         }
 
         public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
         {
-            if (args.Length != 2)
+            if (args.Length % 2 != 0)
             {
                 return ErrorEval.VALUE_INVALID;
             }
 
-            ValueEval val;
-            try
+            for (int i = 0; i < args.Length; i = i + 2)
             {
-                val = EvaluateInternal(args[0], args[1], ec.RowIndex, ec.ColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            return val;
-        }
-
-        private static ValueEval EvaluateInternal(ValueEval arg, ValueEval iferror, int srcCellRow, int srcCellCol)
-        {
-            arg = WorkbookEvaluator.DereferenceResult(arg, srcCellRow, srcCellCol);
-            if (arg is ErrorEval)
-            {
-                //if the 2nd argument is missing, use an empty string as default
-                if (iferror is MissingArgEval)
+                BoolEval logicalTest = (BoolEval)args[i];
+                if ( logicalTest.BooleanValue )
                 {
-                    return new StringEval(string.Empty);
-                }
-                else
-                {
-                    return iferror;
+                    return args[i + 1];
                 }
             }
-            else
-            {
-                return arg;
-            }
+
+            return ErrorEval.NA;
         }
     }
 }
