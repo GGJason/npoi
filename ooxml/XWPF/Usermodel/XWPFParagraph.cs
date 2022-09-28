@@ -1398,6 +1398,10 @@ namespace NPOI.XWPF.UserModel
                     {
                         //do nothing
                     }
+                    else if (o is CT_Empty)
+                    {
+                        //do nothing
+                    }
                     else
                         candCharPos = 0;
                 }
